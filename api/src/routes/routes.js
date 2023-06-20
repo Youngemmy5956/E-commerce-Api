@@ -159,6 +159,36 @@ router.delete("/deleteItemById/:id", async (req, res) => {
 
 // update cart
 router.put("/updateCart/:id", async (req, res) => {
+  const { id } = req.params;
+  const { item, quantity } = req.body;
+  try {
+      await Cart_model.findByIdAndUpdate(id, { item, quantity }).then(
+        (cart) => {
+          res.status(201).json({ message: "cart successfully updated", cart });
+        }
+      );
+    } catch (err) {
+      res.status(400).json({
+        message: "cart not successfully updated",
+        error: err.message,
+      });
+    }
+  });
+
+// delete cart
+   router.delete("/deleteCart/:id", async (req, res) => {
+      const { id } = req.params;
+      try {
+        await Cart_model.findByIdAndDelete(id).then((cart) => {
+          res.status(201).json({ message: "cart successfully deleted", cart });
+        });
+      } catch (err) {
+        res.status(400).json({
+          message: "cart not successfully deleted",
+          error: err.message,
+        });
+      }
+    });
    
   
 
