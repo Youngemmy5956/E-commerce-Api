@@ -120,50 +120,50 @@ router.get("/getCartById/:id", async (req, res) => {
 
 // create cart
 
-
-
-// router.post("/createCart", async (req, res) => {
-//   const owner = req.user.id;
-//   const { item, quantity } = req.body;
-//   try {
-//     const cart = await Cart_model.findById(owner);
-//   const item = await Item_model.findById(item);
-//     if (!item) {
-//       return res.status(400).json({ message: "item does not exist" });
-//     }
-//     const price = item.price;
-//     const name = item.name;
-//     if (cart) {
-//       //cart exists for user
-//       let itemIndex = cart.items.findIndex((p) => p.item == item);
-//       if (itemIndex > -1) {
-//         //product exists in the cart, update the quantity
-//         let productItem = cart.items[itemIndex];
-//         productItem.quantity = quantity;
-
-//         cart.bill = cart.items.reduce((a, b) => a + b.quantity * b.price, 0);
-//         cart.items[itemIndex] = productItem;
-//       } else {
-//         //product does not exists in cart, add new item
-//         cart.items.push({ item, quantity, price, name });
-//         cart.bill = cart.items.reduce((a, b) => a + b.quantity * b.price, 0);
-//       }
-//       cart = await cart.save();
-//       return res.status(201).json(cart);
-//     } else {
-//       //no cart for user, create new cart
-//       const newCart = await Cart_model.create({
-//         owner,
-//         items: [{ item, quantity, price, name }],
-//         bill: quantity * price,
-//       });
-//       return res.status(201).json(newCart);
-//     }
-//   } catch (err) {
-//     console.log(err);
-//     res.status(500).json({ message: "Something went wrong" });
-//   }
-// });
+router.post("/createCart", async (req, res) => {
+  const owner = req.user._id;
+  const { item, quantity } = req.body;
+  try {
+    const cart = await Cart_model.findOne({ owner });
+    const item = await Item_model.findOne({ _id: item });
+    if (!item) {
+      return res.status(400).json({ message: "item does not exist" });
+    }
+    const price = item.price;
+    const name = item.name;
+    if (cart) {
+      //cart exists for user
+      let itemIndex = cart.items.findIndex((item) => item.item == item);
+      if (itemIndex > -1) {
+        //product exists in the cart, update the quantity
+        let productItem = cart.items[itemIndex];
+        productItem.quantity = quantity;
+        cart.bill = cart.items.reduce((a, c) => a + c.quantity * c.price, 0);
+        cart.items[itemIndex] = productItem;
+        await cart.save();
+        return res.status(201).json({ message: "cart successfully updated" });
+      } else {
+        //product does not exists in cart, add new item
+        cart.items.push({ item, quantity, price, name });
+        cart.bill = cart.items.reduce((a, c) => a + c.quantity * c.price, 0);
+        await cart.save();
+        return res.status(201).json({ message: "cart successfully added" });
+      }
+    } else {
+      //no cart for user, create new cart
+      const newCart = await Cart_model.create({
+        owner,
+        items: [{ item, quantity, price, name }],
+        bill: quantity * price,
+      });
+      return res.status(201).json({ message: "cart successfully created" });
+    }
+  } catch (err) {
+    res.status(400).json({
+      message: "cart not successfully created",
+    });
+  }
+});
 
 // update cart
 router.put("/updateCart/:id", async (req, res) => {
