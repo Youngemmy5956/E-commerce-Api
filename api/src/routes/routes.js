@@ -141,7 +141,7 @@ router.post("/createCart", async (req, res) => {
         cart.bill = cart.items.reduce((a, c) => a + c.quantity * c.price, 0);
         cart.items[itemIndex] = productItem;
         await cart.save();
-        return res.status(201).json({ message: "cart successfully updated" });
+        return res.status(201).json({ message: "quantity successfully updated" });
       } else {
         //product does not exists in cart, add new item
         cart.items.push({ item, quantity, price, name });
