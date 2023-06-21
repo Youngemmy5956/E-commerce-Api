@@ -103,6 +103,9 @@ router.delete("/deleteItemById/:id", async (req, res) => {
 
 router.get("/getCartById/:id", async (req, res) => {
   const { id } = req.params;
+  if (!id) {
+    return res.status(400).json({ message: "id is required" });
+  }
   try {
     await Cart_model.findById(id).then((cart) => {
       res.status(201).json({ message: "cart successfully listed", cart });
@@ -117,53 +120,7 @@ router.get("/getCartById/:id", async (req, res) => {
 
 // create cart
 
-router.post("/createCart", async (req, res) => {
-  const owner = req.user;
-  const { itemId, quantity } = req.body;
-  try {
-      const cart = await Cart_model.findOne({ owner });
-      const item = await Item_model.findOne({ _id: itemId });
-  if (!item) {
-      res.status(404).send({ message: "item not found" });
-      return;
-  }
-      const price = item.price;
-      const name = item.name;
-  //If cart already exists for user,
-  if (cart) {
-      const itemIndex = Cart_model.items.findIndex((item) => item.itemId ==  itemId);
-  //check if product exists or not
-  if (itemIndex > -1) {
-      let product = cart.items[itemIndex];
-      product.quantity += quantity;
-      cart.bill = cart.items.reduce((acc, curr) => {
-         return acc + curr.quantity * curr.price;
-     },0)
-  cart.items[itemIndex] = product;
-     await cart.save();
-     res.status(200).send(cart);
-  } else {
-     cart.items.push({ itemId, name, quantity, price });
-     cart.bill = cart.items.reduce((acc, curr) => {
-     return acc + curr.quantity * curr.price;
-  },0)
-     await cart.save();
-     res.status(200).send(cart);
-  }
-  } else {
-  //no cart exists, create one
-  const newCart = await Cart_model.create({
-     owner,
-     items: [{ itemId, name, quantity, price }],
-      bill: quantity * price,
-  });
-  return res.status(201).send(newCart);
-  }
-  } catch (error) {
-     console.log(error);
-     res.status(500).send("something went wrong");
-  }
-  });
+
 
 // router.post("/createCart", async (req, res) => {
 //   const owner = req.user.id;
