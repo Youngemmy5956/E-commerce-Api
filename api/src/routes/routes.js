@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import Item_model from "../model/items.js";
 import Cart_model from "../model/carts.js";
-
+import Order_model from "../model/orders.js";
 // import auth from "../middleware/auth.js";
 
 const router = express.Router();
@@ -29,6 +29,8 @@ router.post("/createItems", async (req, res) => {
     });
   }
 });
+
+
 
 // auth getItemById
 
@@ -121,7 +123,7 @@ router.get("/getCartById/:id", async (req, res) => {
 // create cart
 
 router.post("/createCart", async (req, res) => {
-  const owner = req.user._id;
+  const owner = req.user;
   const { item, quantity } = req.body;
   try {
     const cart = await Cart_model.findOne({ owner });
@@ -195,6 +197,43 @@ router.delete("/deleteCart/:id", async (req, res) => {
     });
   }
 });
+
+
+  // order routes   
+
+        router.get("/getOrderById/:id", async (req, res) => {
+
+          const { id } = req.params;
+          if (!id) {
+            return res.status(400).json({ message: "id is required" });
+          }
+          try {
+            await Order_model.findById(id).then((order) => {
+              res.status(201).json({ message: "order successfully listed", order });
+            });
+          } catch (err) {
+            res.status(400).json({
+              message: "order not successfully listed",
+              error: err.message,
+            });
+          }
+        });
+
+        // chekcout
+
+        // router.post("/checkout", async (req, res) => {
+        //     try{
+        //       const owner = req.user._id;
+        //       let payload = req.body;
+
+        //       // find cart and user
+
+        //       let cart = await Cart_model.findOne(  { owner }  );
+        //       let user = await req.user;
+
+        //     if (cart){
+        //       payload = { ...payload, cart: cart._id, owner: user._id };
+        //       const order = await Order_model.create(payload);
 
 // auth register
 
