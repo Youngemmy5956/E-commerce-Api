@@ -31,6 +31,29 @@ router.post("/createItems", async (req, res) => {
 });
 
 
+// add items together
+
+router.post("/addItems", async (req, res) => {
+  const item = req.body;
+  if (!item) {
+    return res.status(400).json({ message: "all fields are required" });
+  }
+  try {
+    await Item_model.create(item).then((item) => {
+      res.status(201).json({ message: "item successfully created", item });
+    });
+  } catch (err) {
+    res.status(400).json({
+      message: "item not successfully created",
+      error: err.message,
+    });
+  }
+});
+
+
+
+
+
 
 // auth getItemById
 
@@ -133,6 +156,7 @@ router.post("/createCart", async (req, res) => {
     }
     const price = item.price;
     const name = item.name;
+    console.log(cart);
     if (cart) {
       //cart exists for user
       let itemIndex = cart.items.findIndex((item) => item.item == item);
